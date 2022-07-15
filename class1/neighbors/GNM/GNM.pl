@@ -14,6 +14,14 @@ $infile = $ARGV[0];
 open (TESTWORDS, "$infile") or die "Can't open test file $infile: $!\n";
 
 
+if (scalar (@ARGV) > 1) {
+   $outputfile = $ARGV[1];   
+} else {
+	print "Using default name for output file: GNM-Output.txt";
+	$outputfile = "GNM-Output.txt";
+}
+
+
 # Some parameters of the model
 # The indel cost is used in performing the alignments; Bailey and Hahn use .7
 #    (but they say anything from .6 to 1 works OK); they also assume in = del
@@ -103,9 +111,6 @@ my %similarity_table;
 
 $valid_sims = read_similarities();
 
-if (scalar (@ARGV) > 1) {
-   $outputfile = $ARGV[1];   
-}
 
 # The outputfiles will be stored in a directory called "outputfiles" (for
 # neatness)
@@ -115,35 +120,7 @@ unless (-e "outputfiles") {
     mkdir("outputfiles") or die "Can't create directory for output files: $!\n";
 }
 
-
-while ($continue == 0) {
-    unless  (defined $outputfile) {
-	print "Enter name for output file: ";
-	$outputfile = <STDIN>;
-	chomp($outputfile);
-    }
-    
-    $outputfile = "outputfiles/$outputfile";    
-	    
-    if (-e $outputfile) {
-	print "\nFile $outputfile already exists. \nWhat should I do?\n\t1. overwrite old $outputfile\n\t2. Save output file under a new name.\n? ";
-	$response = <STDIN>;
-	chomp($response);
-	if ($response eq "1" or $response eq "1.") {
-	    # OK to overwrite; break out and keep going
-	    $continue = 1;
-	} elsif ($response eq "2" or $response eq "2.") { 
-	    $outputfile = undef;	    
-	    next;	    
-	    
-	} else {
-	    print "Sorry, couldn't understand response; please try again.\n";
-	}
-    } else {
-	# file doesn't already exist.  proceed normally.
-	$continue = 1;
-    }
-}    
+ 
 
 # So we can remember what conditions the simulation was run under
 open (PARAMS, ">$outputfile.params") or die "Can't write to parameters file: $!\n";
