@@ -10,6 +10,10 @@ use POSIX qw(log10);
 #  transcription scheme, under the assumption that this is what the corpus also
 #  uses)
 
+$infile = $ARGV[0];
+open (TESTWORDS, "$infile") or die "Can't open test file $infile: $!\n";
+
+
 # Some parameters of the model
 # The indel cost is used in performing the alignments; Bailey and Hahn use .7
 #    (but they say anything from .6 to 1 works OK); they also assume in = del
@@ -62,39 +66,13 @@ $verbose_outputs = 0;
 # If this is turned off, the program will assume files of just two fields (Phonetic, Freq)
 $celex_format = 1;
 
-# Bailey and Hahn count just over monosyllables
-MONOSYLLABLESONLY:
-while (1 == 1) {
-    print "Exclude polysyllabic wordforms? ([n]) ";
-    $monosyllables_only = <STDIN>;    
-    chomp($monosyllables_only);    
-    if ($monosyllables_only =~ /(yes|y|1|Y|Yes|YES|yES)/ ) {
-	$monosyllables_only = 1;	
-	last MONOSYLLABLESONLY;	
-    } elsif ($monosyllables_only =~ /(no|n|N|NO|No|nO)/ or $monosyllables_only eq "") {
-        $monosyllables_only = 0;        
-	last MONOSYLLABLESONLY;	
-    } else {
-        print "\tSorry, couldn't  understand response.  Please type y, n, or enter for default.\n\n";        
-    }
-}
+# Bailey and Hahn count just over monosyllables, but we'll leave the default as considering all words
+$monosyllables_only = 0;
+
 # It's not clear whether Bailey and Hahn used wordforms, or lemmas
 #    (nor is it clear what the better strategy would be)
-WORDFORMSORLEMMAS:
-while (1==1) {
-    print "\nWord forms or lemmas?\n\t1. word forms\n\t2. lemmas\n? ";    
-    $lemmas = <STDIN>;    
-    chomp($lemmas);    
-    if ($lemmas =~ /^1/ or $lemmas =~ /^[Ww]ord/) {
-	$lemmas = 0;	
-	last WORDFORMSORLEMMAS;	
-    } elsif ($lemmas =~ /^2/ or $lemmas =~ /^[Ll]em/) {
-        $lemmas = 1;        
-	last WORDFORMSORLEMMAS;	
-    } else {
-        print "\tSorry, couldn't understand response.  Please type 1 or 2\n\n";        
-    }
-}
+# Let's leave a default of lemmas
+$lemmas = 1;
 
 if ($lemmas) {
     if ($monosyllables_only) {
@@ -113,18 +91,14 @@ if ($lemmas) {
 
 open (CORPUS, "$corpusfile") or die "Can't open corpus file: $!";
 
-$infile = $ARGV[0];
-open (TESTWORDS, "$infile") or die "Can't open test file $infile: $!\n";
 
-print "Enter similarity file (<RETURN> for default English features): ";
-$simfile = <STDIN>;
-chomp($simfile);
-if ($simfile eq "") {
+
+# Default similarity file from Bailey and Hahn's model
 #    $simfile = "similarity/English-DISC-FrischFeatures.stb";
 #     $simfile = "similarity/PVMSsim.stb";
 #     $simfile = "similarity/BaileyHahnFeatures.stb";
-    $simfile = "similarity/BaileyHahnSimilarityValues.stb";
-}
+$simfile = "similarity/BaileyHahnSimilarityValues.stb";
+
 my %similarity_table;
 
 $valid_sims = read_similarities();
