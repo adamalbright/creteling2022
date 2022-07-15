@@ -441,7 +441,7 @@ while ($word = <TESTWORDS>) {
 	}
 	
 	# Then check if this is an "old-fashioned" neighbor
-	if ($phonetic[$w] =~ m/^$neighbors$/) {
+	if ($phonetic[$w] =~ m/^\Q$neighbors\E$/) {
 	    $nnb[$number_of_testwords]++;
 	    $neighbors[$number_of_testwords] .= "$words[$w] [$phonetic[$w]]|";	    
 	    $neighbor_freq[$number_of_testwords] += log($freq[$w] + $freq_boost);	    
